@@ -26,13 +26,22 @@ Driver.prototype.config = function(rpc,cb) {
   if (!rpc) {
     return cb(null, {
       'contents':[
-        { 'type': 'submit', 'name': 'Send Device Logs to Ninja Support', 'rpc_method': 'send' }
+        { 'type': 'submit', 'name': 'Send Device Logs to Ninja Support', 'rpc_method': 'form' }
       ]
     });
   }
 
-  if (rpc.method == 'send') {
-    this.sendLogs(cb);
+  if (rpc.method == 'form') {
+    cb(null, {
+      "contents":[
+        { "type": "paragraph", "text":"Please enter your details below and hit 'Send' to transmit your block's logs and debug information to Ninja Blocks support."},
+        { "type": "input_field_text", "field_name": "name", "value": "", "label": "Name", "required": true},
+        { "type": "input_field_text", "field_name": "email", "value": "", "label": "Email", "required": true},
+        { "type": "submit", "name": "Send", "rpc_method": "send" }
+      ]
+    });
+  } else if (rpc.method == 'send') {
+    this.sendLogs(rpc.params, cb);
     return;
   } else {
     return cb(true);
@@ -40,20 +49,24 @@ Driver.prototype.config = function(rpc,cb) {
 
 };
 
-Driver.prototype.sendLogs = function(cb) {
+Driver.prototype.sendLogs = function(form, cb) {
+  console.log('Form', form)
+
   this.getLogs(function sendSupportLogs(logs) {
-    //this.getUser(this.app, function(err, user) {
-      //logs.user = user;
-      logs.userId = this.app.serial;//user.email;
-      logs.serial = this.app.serial;
-      logs.groupingHash = 'support';
-
-      //this.bugsnag.notify(new Error('Support logs for ' + logs.userId), logs);
-      
-      console.log('Got Logs', logs);
-
-   // }.bind(this));
    
+    logs.userId = form.email;
+    logs.user = form.name;
+    logs.serial = this.app.serial;
+    logs.groupingHash = 'support';
+
+    console.log('Sending log keys : ', Object.keys(logs));
+    this.bugsnag.notify(new Error('Support logs for ' + logs.userId), logs);
+
+    cb(null, {
+    "contents":[
+      { "type": "paragraph", "text":"Thankyou. Your information has been sent."}
+    ]});
+
   }.bind(this));
 };
 
