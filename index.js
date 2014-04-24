@@ -74,7 +74,7 @@ var commands = {
   'env': 'env',
   'uptime': 'uptime',
   'traceZendo' : 'curl -v --trace-time https://zendo.ninja.is/',
-  'pingGoogle' : 'ping -c 10 -i 10  http://google.com',
+  'pingGoogle' : 'ping -c 10 -i 10  google.com',
   'dmesg': 'dmesg',
   'ninjaLog': 'cat /var/log/ninjablock.log',
   'network': 'ifconfig -a',
